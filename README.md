@@ -1,1 +1,1 @@
-# **megSAP_containerized** - a containerized version of the megSAP pipeline
+# *megSAP_containerized* - a containerized version of the megSAP pipeline
