@@ -1,6 +1,7 @@
 # Test on automated build
+# Changed ubuntu to ubuntu:xenial
 # Base image
-FROM ubuntu
+FROM ubuntu:xenial
 
 # Set default shell
 SHELL ["/bin/bash", "-c"]
