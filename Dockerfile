@@ -46,7 +46,7 @@ RUN add-apt-repository ppa:webupd8team/java && \
 # Install and configure megSAP
 RUN cd / && \
 	git clone https://github.com/imgag/megSAP.git && \
-  cd /megSAP && cp settings.ini.default settings.ini \
+  cd /megSAP && cp settings.ini.default settings.ini && \
 	cd /megSAP/data && \
 	/bin/bash download_tools.sh
 
@@ -55,4 +55,3 @@ RUN cd /megSAP/data && \
   mkdir -p /mnt/data/dbs /mnt/data/genomes && \
   ln -s /mnt/data/dbs dbs && \
   ln -s /mnt/data/genomes genomes
-  
