@@ -43,8 +43,9 @@ RUN add-apt-repository ppa:webupd8team/java && \
 	echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
 	apt-get install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default
 
-# Install megSAP
+# Install and configure megSAP
 RUN cd / && \
 	git clone https://github.com/imgag/megSAP.git && \
+  cd /megSAP && cp settings.ini.default settings.ini \
 	cd /megSAP/data && \
 	/bin/bash download_tools.sh
