@@ -49,3 +49,10 @@ RUN cd / && \
   cd /megSAP && cp settings.ini.default settings.ini \
 	cd /megSAP/data && \
 	/bin/bash download_tools.sh
+
+# configure mount points
+RUN cd /megSAP/data && \
+  mkdir -p /mnt/data/dbs /mnt/data/genomes && \
+  ln -s /mnt/data/dbs dbs && \
+  ln -s /mnt/data/genomes genomes
+  
