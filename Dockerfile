@@ -13,11 +13,12 @@ USER root
 RUN apt-get update && \
   apt-get upgrade -y
 
-# Install dependencies
+# Install dependencies (curl added because of gosu)
 RUN apt-get install -y --no-install-recommends \
 	bzip2 \
 	ca-certificates \
 	cmake \
+	curl \
 	debconf-utils \
 	g++ \
 	libncurses5-dev \
@@ -50,8 +51,25 @@ RUN cd / && \
 	cd /megSAP/data && \
 	/bin/bash download_tools.sh
 
-# configure mount points
+# Configure mount points
 RUN cd /megSAP/data && \
   mkdir -p /mnt/data/dbs /mnt/data/genomes && \
-  ln -s /mnt/data/dbs dbs && \
-  ln -s /mnt/data/genomes genomes
+  mv dbs dbs_old && \
+  mv genomes genomes_old && \
+  ln -s /mnt/data/dbs && \
+  ln -s /mnt/data/genomes
+
+# Adding gosu 
+# See https://denibertovic.com/posts/handling-permissions-with-docker-volumes/ 
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
+
+#Adding gosu to switch to the newly created user (see https://denibertovic.com/posts/handling-permissions-with-docker-volumes/)
+RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture)" \
+        && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture).asc" \
+        && gpg --verify /usr/local/bin/gosu.asc \
+        && rm /usr/local/bin/gosu.asc \
+        && chmod +x /usr/local/bin/gosu
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
