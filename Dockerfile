@@ -37,6 +37,25 @@ RUN apt-get install -y --no-install-recommends \
 	unzip \
 	wget
 
+# Adding gosu
+# See https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
+
+#Adding gosu to switch to the newly created user (see https://denibertovic.com/posts/handling-permissions-with-docker-volumes/)
+RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture)" \
+        && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture).asc" \
+        && gpg --verify /usr/local/bin/gosu.asc \
+        && rm /usr/local/bin/gosu.asc \
+        && chmod +x /usr/local/bin/gosu
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Make entrypoint executable
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+
 # Install Java from custom repository
 # Note that this auto-accepts the license terms
 RUN add-apt-repository ppa:webupd8team/java && \
@@ -58,18 +77,3 @@ RUN cd /megSAP/data && \
   mv genomes genomes_old && \
   ln -s /mnt/data/dbs && \
   ln -s /mnt/data/genomes
-
-# Adding gosu 
-# See https://denibertovic.com/posts/handling-permissions-with-docker-volumes/ 
-RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
-
-#Adding gosu to switch to the newly created user (see https://denibertovic.com/posts/handling-permissions-with-docker-volumes/)
-RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture)" \
-        && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture).asc" \
-        && gpg --verify /usr/local/bin/gosu.asc \
-        && rm /usr/local/bin/gosu.asc \
-        && chmod +x /usr/local/bin/gosu
-
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
