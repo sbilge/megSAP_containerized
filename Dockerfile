@@ -57,6 +57,8 @@ RUN cd / && \
 	/bin/bash download_tools_somatic.sh
 #RUN chmod -R 777 megSAP
 
+RUN chmod -R 777 megSAP
+
 # Configure mount points
 #subject is the dataset to be analysed by the pipeline
 RUN cd /megSAP/data && \
