@@ -1,7 +1,7 @@
 # Test on automated build
 # Changed ubuntu to ubuntu:xenial
 # Base image
-FROM ubuntu:xenial
+FROM ubuntu1604_base
 
 # Set default shell
 SHELL ["/bin/bash", "-c"]
@@ -13,12 +13,16 @@ USER root
 RUN apt-get update && \
   apt-get upgrade -y
 
-# Install dependencies (curl added because of gosu)
+# Install dependencies
 RUN apt-get install -y --no-install-recommends \
 	bzip2 \
+	php7.0-mysql \
 	ca-certificates \
 	cmake \
-	curl \
+	less \
+	gcc \
+	rsync \
+	zlib1g-dev \
 	debconf-utils \
 	g++ \
 	libncurses5-dev \
@@ -37,25 +41,6 @@ RUN apt-get install -y --no-install-recommends \
 	unzip \
 	wget
 
-# Adding gosu
-# See https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
-RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
-
-#Adding gosu to switch to the newly created user (see https://denibertovic.com/posts/handling-permissions-with-docker-volumes/)
-RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture)" \
-        && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.4/gosu-$(dpkg --print-architecture).asc" \
-        && gpg --verify /usr/local/bin/gosu.asc \
-        && rm /usr/local/bin/gosu.asc \
-        && chmod +x /usr/local/bin/gosu
-
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-
-# Make entrypoint executable
-RUN chmod 755 /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-
 # Install Java from custom repository
 # Note that this auto-accepts the license terms
 RUN add-apt-repository ppa:webupd8team/java && \
@@ -65,15 +50,19 @@ RUN add-apt-repository ppa:webupd8team/java && \
 
 # Install and configure megSAP
 RUN cd / && \
-	git clone https://github.com/imgag/megSAP.git && \
+	git clone https://github.com/sbilge/megSAP.git && \
   cd /megSAP && cp settings.ini.default settings.ini && \
 	cd /megSAP/data && \
-	/bin/bash download_tools.sh
+	/bin/bash download_tools.sh && \
+	/bin/bash download_tools_somatic.sh
+#RUN chmod -R 777 megSAP
 
 # Configure mount points
+#subject is the dataset to be analysed by the pipeline
 RUN cd /megSAP/data && \
-  mkdir -p /mnt/data/dbs /mnt/data/genomes && \
+  mkdir -p /mnt/data/dbs /mnt/data/genomes /mnt/data/subject && \
   mv dbs dbs_old && \
   mv genomes genomes_old && \
   ln -s /mnt/data/dbs && \
-  ln -s /mnt/data/genomes
+  ln -s /mnt/data/genomes && \
+  ln -s /mnt/data/subject
