@@ -1,6 +1,6 @@
 # Test on automated build
 # Base image
-FROM ubuntu1604_base
+FROM ubuntu:16.04
 
 # Set default shell
 SHELL ["/bin/bash", "-c"]
