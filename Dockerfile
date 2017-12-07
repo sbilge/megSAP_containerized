@@ -63,5 +63,7 @@ RUN chmod -R 777 megSAP
 
 # Configure mount points
 RUN cd /megSAP/data && \
+  mv dbs dbs_old && \
+  mv genomes genomes_old && \
   ln -s /mnt/data/dbs  && \
   ln -s /mnt/data/genomes
